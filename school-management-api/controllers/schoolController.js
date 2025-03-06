@@ -13,7 +13,6 @@ function getDistance(lat1, lon1, lat2, lon2) {
     return R * c;
 }
 
-// ✅ Add a new school
 exports.addSchool = async (req, res) => {
     try {
         const { name, address, latitude, longitude } = req.body;
@@ -22,17 +21,12 @@ exports.addSchool = async (req, res) => {
         if (!name || !address || latitude === undefined || longitude === undefined) {
             return res.status(400).json({ error: 'All fields (name, address, latitude, longitude) are required' });
         }
-
-        const lat = parseFloat(latitude);
-        const lon = parseFloat(longitude);
-        if (isNaN(lat) || isNaN(lon)) {
+        if (typeof latitude !== 'number' || typeof longitude !== 'number') {
             return res.status(400).json({ error: 'Latitude and longitude must be valid numbers' });
         }
 
         // 🔹 Insert into database
-        const result = await School.addSchool(name, address, lat, lon);
-        if (!result.insertId) throw new Error("Insert ID not returned");
-
+        const result = await School.addSchool(name, address, latitude, longitude);
         res.status(201).json({ message: 'School added successfully', schoolId: result.insertId });
 
     } catch (err) {
@@ -41,7 +35,6 @@ exports.addSchool = async (req, res) => {
     }
 };
 
-// ✅ List all schools sorted by proximity
 exports.listSchools = async (req, res) => {
     try {
         const { latitude, longitude } = req.query;
@@ -50,7 +43,6 @@ exports.listSchools = async (req, res) => {
         if (!latitude || !longitude) {
             return res.status(400).json({ error: 'Latitude and longitude are required' });
         }
-
         const lat = parseFloat(latitude);
         const lon = parseFloat(longitude);
         if (isNaN(lat) || isNaN(lon)) {
@@ -60,7 +52,7 @@ exports.listSchools = async (req, res) => {
         // 🔹 Fetch all schools
         const schools = await School.getAllSchools();
         if (!schools.length) {
-            return res.status(200).json([]); // Return an empty array instead of 404
+            return res.status(404).json({ message: 'No schools found' });
         }
 
         // 🔹 Calculate distances & sort
