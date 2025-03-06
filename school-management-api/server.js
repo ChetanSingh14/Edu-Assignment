@@ -11,7 +11,7 @@ app.use(bodyParser.json());
 // Use Routes
 app.use('/api/schools', schoolRoutes);
 
-const PORT = process.env.PORT || 6000;
+const PORT = process.env.PORT || 6100;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
